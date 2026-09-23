@@ -94,6 +94,7 @@ app.post('/api/results', async (req, res) => {
 
 app.get('/api/leaderboard', async (req, res) => {
   const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 100);
+
   try {
     if (pool) {
       const { rows } = await pool.query(`
@@ -107,21 +108,30 @@ app.get('/api/leaderboard', async (req, res) => {
         ORDER BY score DESC, total_time_ms ASC
         LIMIT $1
       `, [limit]);
+
       return res.json({ players: rows });
     }
+
     const players = [...memoryPlayers.values()]
-      .sort((a,b) => (b.score-a.score) || (a.totalTimeMs-b.totalTimeMs))
+      .sort((a, b) => (b.score - a.score) || (a.totalTimeMs - b.totalTimeMs))
       .slice(0, limit);
+
     res.json({ players });
+
   } catch (e) {
     res.status(500).json({ players: [], error: e.message });
   }
 });
 
-app.get((req, res) => res.sendFile(path.join(__dirname, 'game.html')));
+// الصفحة الرئيسية
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'game.html'));
+});
 
 initDb().then(() => {
-  app.listen(PORT, () => console.log(`Game server running on port ${PORT}`));
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Game server running on port ${PORT}`);
+  });
 }).catch(err => {
   console.error('Database initialization failed:', err);
   process.exit(1);
