@@ -118,7 +118,7 @@ app.get('/api/leaderboard', async (req, res) => {
   }
 });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'game.html')));
+app.get((req, res) => res.sendFile(path.join(__dirname, 'game.html')));
 
 initDb().then(() => {
   app.listen(PORT, () => console.log(`Game server running on port ${PORT}`));
